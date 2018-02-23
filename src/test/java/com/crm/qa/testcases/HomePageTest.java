@@ -40,11 +40,7 @@ public class HomePageTest extends TestBase {
 		homePage = loginPage.login(prop.getProperty("username"), prop.getProperty("password"));
 	}
 	
-	@AfterTest
-	public void captureScreenShot(ITestResult result) {
-		
-		
-	}
+	
 	
 	@Test(priority=1)
 	public void verifyHomePageTitleTest(){
