@@ -5,6 +5,7 @@
 package com.qa.ExtentReportListener;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.xml.XmlSuite;
 
+import com.crm.qa.util.TestUtil;
 import com.relevantcodes.extentreports.ExtentReports;
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
@@ -25,10 +27,9 @@ import com.relevantcodes.extentreports.LogStatus;
 public class ExtentReporterNG implements IReporter {
 	private ExtentReports extent;
 
-	public void generateReport(List<XmlSuite> xmlSuites, List<ISuite> suites,
-			String outputDirectory) {
-		extent = new ExtentReports(outputDirectory + File.separator
-				+ "Extent.html", true);
+	public void generateReport(List<XmlSuite> xmlSuites, List<ISuite> suites, String outputDirectory) {
+		extent = new ExtentReports(outputDirectory + File.separator + "Extent.html", true);
+//		extentTest=new ExtentTest();
 
 		for (ISuite suite : suites) {
 			Map<String, ISuiteResult> result = suite.getResults();
@@ -50,22 +51,28 @@ public class ExtentReporterNG implements IReporter {
 		ExtentTest test;
 
 		if (tests.size() > 0) {
+			String path="";
 			for (ITestResult result : tests.getAllResults()) {
 				test = extent.startTest(result.getMethod().getMethodName());
-
 				test.setStartedTime(getTime(result.getStartMillis()));
 				test.setEndedTime(getTime(result.getEndMillis()));
+				System.out.println("inside build tests");
+				for(Map.Entry<String,ITestResult> m : TestUtil.screenshotpath().entrySet() ) {
+					if(result.getName().equals(m.getValue().getName())) {
+	            	 path=m.getKey().toString();
+	            	 System.out.println("Image path is" + path);
+	 				test.log(status,test.addScreenCapture(path));
+					}
+			}
 
 				for (String group : result.getMethod().getGroups())
 					test.assignCategory(group);
-
 				if (result.getThrowable() != null) {
 					test.log(status, result.getThrowable());
 				} else {
-					test.log(status, "Test " + status.toString().toLowerCase()
-							+ "ed");
+					test.log(status, "Test " + status.toString().toLowerCase()+ "ed");
 				}
-
+			
 				extent.endTest(test);
 			}
 		}
